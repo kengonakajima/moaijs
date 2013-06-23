@@ -94,3 +94,14 @@ $(canvas).click( function(event) {
     s0.play( range(0.1,1) );
     
 });
+
+$(canvas).bind("touchstart", function(ev) {
+    var x = event.offsetX - canvas.width/2;
+    var y = event.offsetY - canvas.height/2;
+    
+    addProps(x,y,100);
+    print("touched");
+    $("#touch").html("touched");
+
+    s0.play( range(0.1,1) );    
+});
