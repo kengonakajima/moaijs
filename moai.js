@@ -212,13 +212,21 @@ function SoundSystem() {
         req.send();
         snd.parent = ss;
 
-        snd.play = function() {
+        snd.play = function(vol) {
+            if( vol == null ) vol = 1;
+
             var source = snd.parent.ctx.createBufferSource() ;
             source.buffer = snd.buffer;
-            source.connect (snd.parent.ctx.destination);
+            
+            var gain_node = snd.parent.ctx.createGainNode();
+            source.connect(gain_node);
+            gain_node.connect( snd.parent.ctx.destination);
+            gain_node.gain.value = vol;
+
             source.noteOn(0);
 
             snd.source = source;
+            snd.gain_node = gain_node;
             
         };
         return snd;

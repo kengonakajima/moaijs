@@ -89,10 +89,8 @@ $(canvas).click( function(event) {
     var x = event.offsetX - canvas.width/2;
     var y = event.offsetY - canvas.height/2;
     
-    print("clk:", x,y);
-    
     addProps( x,y, 100 );
 
-    s0.play();
+    s0.play( range(0.1,1) );
     
 });
