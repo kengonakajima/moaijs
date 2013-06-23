@@ -66,7 +66,6 @@ function TileDeck() {
     td.getCoords = function( ind ) {
         var col = ind % td.numgrid_x;
         var row = Math.floor( ind / td.numgrid_y );
-        print( "hoge", col, row );
         return {
             x0 : col * td.spritesize_x,
             y0 : row * td.spritesize_y,
@@ -114,7 +113,7 @@ function Prop() {
         }
     };
     p.poll = function(dt) {
-        var keep = p.onUpdate(dt);
+        var keep = p.onUpdate.apply(p, [dt]);
         if(keep == false ) {
             print("to clean..");
         }
@@ -161,7 +160,9 @@ function Layer() {
         assert( l.parent_moai != null );
         p.parent_layer = l;
         p.parent_moai = l.parent_moai;
+
         l.props.push(p);
+        
     };
     l.setCamera = function(cam) {
         l.camera = cam;
@@ -171,12 +172,14 @@ function Layer() {
             var prop = l.props[i];
             prop.poll(dt);
         }
+        return l.props.length;
     };
     l.render = function() {
         for(var i=0;i<l.props.length;i++) {
             var prop = l.props[i];
             prop.render();
         }
+        return l.props.length;        
     };
     return l;
 }
@@ -207,19 +210,23 @@ function MoaiJS() {
     moai.accum_time = 0;
     moai.poll = function( dt ) {
         moai.accum_time += dt;
+        var tot=0;
         for(var i=0;i<moai.layers.length;i++) {
             var layer = moai.layers[i];
-            layer.poll(dt);
+            tot+=layer.poll(dt);
         }
+        return tot;
     };
     
     moai.render = function() {
         moai.ctx.fillStyle = moai.clear_color.toStyle();
         moai.ctx.fillRect(0,0,moai.canvas.width,moai.canvas.height);
+        var tot=0;
         for(var i=0;i<moai.layers.length;i++) {
             var layer = moai.layers[i];
-            layer.render();
+            tot+=layer.render();
         }
+        return tot;
     };
     
     return moai;
