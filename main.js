@@ -95,6 +95,7 @@ $(canvas).click( function(event) {
     
 });
 
+// on ios6, have to play sound in touch events first.
 $(canvas).bind("touchstart", function(ev) {
     var x = event.offsetX - canvas.width/2;
     var y = event.offsetY - canvas.height/2;
