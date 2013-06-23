@@ -207,28 +207,31 @@ function SoundSystem() {
             ss.ctx.decodeAudioData( req.response, function(buffer) {
                 snd.buffer = buffer;
                 print("newSound onload", url );
+
+                snd.play = function(vol) {
+                    if( vol == null ) vol = 1;
+
+                    var source = snd.parent.ctx.createBufferSource() ;
+                    source.buffer = snd.buffer;
+                    
+                    var gain_node = snd.parent.ctx.createGainNode();
+                    source.connect(gain_node);
+                    gain_node.connect( snd.parent.ctx.destination);
+                    gain_node.gain.value = vol;
+
+                    source.noteOn(0);
+
+                    snd.source = source;
+                    snd.gain_node = gain_node;
+                    
+                };
+                
+                
             }, function(e){ print(e); } );
         }
         req.send();
         snd.parent = ss;
 
-        snd.play = function(vol) {
-            if( vol == null ) vol = 1;
-
-            var source = snd.parent.ctx.createBufferSource() ;
-            source.buffer = snd.buffer;
-            
-            var gain_node = snd.parent.ctx.createGainNode();
-            source.connect(gain_node);
-            gain_node.connect( snd.parent.ctx.destination);
-            gain_node.gain.value = vol;
-
-            source.noteOn(0);
-
-            snd.source = source;
-            snd.gain_node = gain_node;
-            
-        };
         return snd;
     };
     
