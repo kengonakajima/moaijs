@@ -27,6 +27,10 @@ dk.setTexture(tt);
 dk.setSize( 16,16, 16,16,  256,256 );
 
 
+var ss = SoundSystem();
+
+var s0 = ss.newSound( "http://localhost:8888/sounds/explode.wav" );
+
 
 function addProps(x,y,n) {
     for(var i=0;i<n;i++) {
@@ -88,4 +92,7 @@ $(canvas).click( function(event) {
     print("clk:", x,y);
     
     addProps( x,y, 100 );
+
+    s0.play();
+    
 });

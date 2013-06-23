@@ -185,6 +185,51 @@ function Layer() {
 }
 
 
+function SoundSystem() {
+    var ss = {};
+
+    try {
+        ss.ctx = new webkitAudioContext();
+    } catch(e) {
+        alert( "web audio api is not supported" );
+    }
+    //    print(ss.ctx);
+
+    ss.newSound = function(url) {
+        var snd = {};
+        var req = new XMLHttpRequest();
+        snd.req = req;
+        
+        req.open( "GET", url, true );
+        req.responseType = "arraybuffer";
+
+        req.onload = function() {
+            ss.ctx.decodeAudioData( req.response, function(buffer) {
+                snd.buffer = buffer;
+                print("newSound onload", url );
+            }, function(e){ print(e); } );
+        }
+        req.send();
+        snd.parent = ss;
+
+        snd.play = function() {
+            var source = snd.parent.ctx.createBufferSource() ;
+            source.buffer = snd.buffer;
+            source.connect (snd.parent.ctx.destination);
+            source.noteOn(0);
+
+            snd.source = source;
+            
+        };
+        return snd;
+    };
+    
+
+    return ss;
+}
+
+//////////////
+
 function MoaiJS() {
     var moai = {};
 
