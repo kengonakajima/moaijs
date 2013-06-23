@@ -14,9 +14,17 @@ moai.insertLayer( main_layer );
 
 var cam = Camera();
 cam.setLoc( Vec2(0,0) );
+main_layer.setCamera(cam);
 
 var t = Texture();
 t.load( "sol.png" );
+
+var tt = Texture();
+tt.load( "base.png" );
+
+var dk = TileDeck();
+dk.setTexture(tt);
+dk.setSize( 16,16, 16,16,  256,256 );
 
 var p = Prop();
 p.setTexture(t);
@@ -24,10 +32,22 @@ p.setScl(16,16);
 p.setLoc(0,0);
 p.onUpdate = function(dt) {
     p.loc.x += 5;
+    return true;
 };
-
-main_layer.setCamera(cam);
 main_layer.insertProp(p);
+
+var dp = Prop();
+dp.setDeck( dk );
+dp.setScl(32,32);
+dp.setLoc(30,30);
+dp.setIndex(0);
+dp.onUpdate = function(dt) {
+    dp.setIndex( irange(0,3) );
+}
+main_layer.insertProp(dp);
+
+
+
 
 
 var last_loop_at = now();
