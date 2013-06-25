@@ -4,6 +4,10 @@ moaijs
 js based moai-like game engine 
 
 
+Demo
+======
+<a href="http://kengonakajima.github.io/moaijs/index.html">demo on github.io</a>
+
 How to use
 ======
 
