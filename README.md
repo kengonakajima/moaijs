@@ -8,6 +8,13 @@ Demo
 ======
 <a href="http://kengonakajima.github.io/moaijs/index.html">demo on github.io</a>
 
+Performance
+======
+ - about 3500~4000 sprites / 60fps  on my macbook pro 2012Mid (2.6GHz Core i7)
+ - about 100-200 sprites/60fps on my iphone4
+ 
+ 
+ 
 How to use
 ======
 
