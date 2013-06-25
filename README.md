@@ -9,6 +9,7 @@ How to use
 
 Get and initialize moaijs context with your canvas:
 <Pre>
+var canvas = $("#gamecanvas")[0];
 var moai = MoaiJS();
 moai.setCanvas(canvas);
 moai.setClearColor( Color(0.1,0.1,0.1,1) );
