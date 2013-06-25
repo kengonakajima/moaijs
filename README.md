@@ -81,3 +81,11 @@ function game_loop_callback() {
 }
 setInterval( game_loop_callback, 16.667  );
 </pre>
+
+
+Todo
+======
+ - Grid
+ - rotation
+ - Animation
+ 
