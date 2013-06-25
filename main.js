@@ -29,7 +29,7 @@ dk.setSize( 16,16, 16,16,  256,256 );
 
 var ss = SoundSystem();
 
-var s0 = ss.newSound( "http://localhost:8888/sounds/explode.wav" );
+var s0 = ss.newSound( "http://kengonakajima.github.io/moaijs/sounds/explode.wav" );
 
 
 function addProps(x,y,n) {
