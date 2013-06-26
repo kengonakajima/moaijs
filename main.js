@@ -47,12 +47,22 @@ function addProps(x,y,n) {
             this.loc.y += this.v.y * dt;
             if( this.loc.x < - canvas.width/2 || this.loc.x > canvas.width/2 ) this.v.x *= -1;
             if( this.loc.y < - canvas.height/2 || this.loc.y > canvas.height/2 ) this.v.y *= -1;
+            this.rot += dt;
             
             return true;
         }
         main_layer.insertProp(dp);
     }
 }
+
+var pp = new Prop();
+pp.setTexture(t);
+pp.setScl(128,128);
+pp.setLoc(200,0);
+pp.onUpdate = function(dt) {
+    this.rot += dt;
+}
+main_layer.insertProp(pp);
 
 
 addProps(0,0,10);

@@ -84,6 +84,7 @@ function Prop() {
     p.loc = Vec2(0,0);
     p.scl = Vec2(16,16);
     p.index = null;
+    p.rot = 0;
     p.onUpdate = function(p) { return true; }
     
     p.setTexture = function(t) {
@@ -128,23 +129,35 @@ function Prop() {
         var x = p.loc.x - p.parent_layer.camera.loc.x + center_x;
         var y = p.loc.y - p.parent_layer.camera.loc.y + center_y;
 
+        var ctx = p.parent_moai.ctx;
+
+
+            var x = Math.floor(x); 
+            var y = Math.floor(y);
+            ctx.translate(x,y);
+            if( p.rot != 0 ) ctx.rotate(p.rot);
+
         if( p.deck ) {
             assert( p.deck.tex );
-            var coords = p.deck.getCoords( p.index );
-            p.parent_moai.ctx.drawImage( p.deck.tex.img,
-                                         coords.x0, coords.y0,
-                                         coords.w, coords.h,
-                                         Math.floor(x - p.scl.x/2), Math.floor(y - p.scl.y/2),
-                                         p.scl.x,p.scl.y
-                                       );            
+            var coords = p.deck.getCoords( p.index );        
+            ctx.drawImage( p.deck.tex.img,
+                           coords.x0, coords.y0,
+                           coords.w, coords.h,
+                           - p.scl.x/2, - p.scl.y/2,
+                           p.scl.x,p.scl.y
+                         );
         } else {
-            p.parent_moai.ctx.drawImage( p.tex.img,
-                                         0,0,
-                                         16,16,
-                                         x - p.scl.x/2, y - p.scl.y/2,
-                                         p.scl.x,p.scl.y
-                                       );
+            ctx.drawImage( p.tex.img,
+                           0,0,
+                           16,16,
+                           - p.scl.x/2, - p.scl.y/2,
+                           p.scl.x,p.scl.y
+                         );
         }
+        if( p.rot != 0 ) ctx.rotate(-p.rot);
+        ctx.translate(-x,-y);            
+
+
 //        print("render:", p.loc.x, p.loc.y, p.scl.x, p.scl.y, center_x, center_y );
     };
     
