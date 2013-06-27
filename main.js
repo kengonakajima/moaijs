@@ -26,9 +26,12 @@ var dk = TileDeck();
 dk.setTexture(t1);
 dk.setSize( 16,16, 16,16,  256,256 );
 
+var bulletanim = Animation();
+bulletanim.setKeys( 0.1, [16,17,18,19] );
+bulletanim.loop = true;
+
 
 var ss = SoundSystem();
-
 var s0 = ss.newSound( "http://localhost:8888/sounds/explode.wav" ); // command line "node sv.js" to serve static files for debugging
 
 // with deck
@@ -40,7 +43,6 @@ function addProps(x,y,n) {
         p.v = Vec2( range(-200,200), range(-200,200) );
         p.setLoc( x,y );
         p.onUpdate = function(dt) {
-            if( this.animate ) this.animate(dt);
             this.loc.x += this.v.x * dt;
             this.loc.y += this.v.y * dt;
             if( this.loc.x < - canvas.width/2 || this.loc.x > canvas.width/2 ) this.v.x *= -1;
@@ -56,9 +58,7 @@ function addProps(x,y,n) {
             p.setDeck( dk );
             p.setScl(32,32);
             p.setIndex(0);
-            p.animate = function(dt) {
-                this.setIndex( irange(0,3) );
-            }
+            p.setAnim( bulletanim );
         } else if( t == 1 )  { // sprite with grid
             var g = new Grid();
             g.setDeck(dk);

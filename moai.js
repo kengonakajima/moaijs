@@ -77,9 +77,7 @@ function TileDeck() {
     return td;
 }
 
-function AnimCurve() {
-    
-}
+
 function Grid() {
     var g = {};
     g.deck = null;
@@ -132,14 +130,45 @@ function Grid() {
     return g;
 }
 
+function Animation() {
+    var ac = {};
+    ac.keys = [0];
+    ac.loop = false;
+    ac.step_time = 0.016667;
+    ac.total_time = 0;
+    ac.setKeys = function( step_time, inds ) {
+        assert( inds instanceof Array );
+        ac.keys = inds;
+        ac.step_time = step_time;
+        ac.total_time = step_time * inds.length;
+    }
+    ac.getIndex = function( t ) {
+        if(t<0) t=0;
+        var ind = Math.floor(t / ac.step_time);
+        assert(ind>=0);
+        if(ac.loop){
+            return ac.keys[ ind % ac.keys.length ];
+        } else {
+            if( ind >= ac.keys.length ) {
+                return ac.keys[ ac.keys.length - 1 ];
+            } else {
+                return ac.keys[ ind ];
+            }
+        }
+    }
+
+    return ac;
+}
 
 function Prop() {
     var p = {};
     p.parent_layer = null;
+    p.accum_time = 0;
     p.tex = null;
     p.loc = Vec2(0,0);
     p.scl = Vec2(16,16);
     p.index = null;
+    p.anim = null;
     p.rot = 0;
     p.grids = new Array();
     p.onUpdate = function(p) { return true; }
@@ -153,6 +182,9 @@ function Prop() {
     p.setDeck = function(dk) {
         p.deck = dk;
         p.index = 0;
+    }
+    p.setAnim = function(anm) {
+        p.anim = anm;
     }
     p.setLoc = function(a,b) {
         if( b != null ) {
@@ -171,9 +203,15 @@ function Prop() {
         }
     };
     p.poll = function(dt) {
+        p.accum_time += dt;
         var keep = p.onUpdate.apply(p, [dt]);
         if(keep == false ) {
-            print("to clean..");
+            p.parent_layer.removeProp(p);
+            return;
+        }
+        if( p.anim ) {
+            var ind = p.anim.getIndex(p.accum_time);
+            p.setIndex( ind );
         }
     }
     p.addGrid = function(g) {

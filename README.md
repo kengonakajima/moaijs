@@ -85,6 +85,15 @@ g.set(0,1,123);
 prop.addGrid(g);
 </pre>
 
+Animation:
+
+<Pre>
+var a = Animation();
+a.setKeys( 0.1, [16,17,18,19] );
+a.loop = true;
+prop.setAnim(a);
+</pre>
+
             
 Then start your game loop:
 <pre>
