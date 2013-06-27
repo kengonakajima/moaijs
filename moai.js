@@ -9,264 +9,254 @@ function to02x(i) {
 }
 
 function Vec2(x,y) {
-    var v = { x:x, y:y };
-    return v;
+    this.x = x;
+    this.y = y;
 }
 
 // 0 ~ 1
 function Color(r,g,b,a) {
-    var c = { r:r, g:g, b:b, a:a};
-    c.toStyle = function() {
-        var ri = parseInt(c.r * 255);
-        var gi = parseInt(c.g * 255);
-        var bi = parseInt(c.b * 255);
-        var s = "#" + to02x(ri) + to02x(gi) + to02x(bi);
-        return s;
-    }
-    return c;
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+}
+Color.prototype.toStyle = function() {
+    var ri = parseInt(this.r * 255);
+    var gi = parseInt(this.g * 255);
+    var bi = parseInt(this.b * 255);
+    var s = "#" + to02x(ri) + to02x(gi) + to02x(bi);
+    return s;
 }
 
-function Camera () {
-    var c = Prop();     // need loc
-    return c;
-}
 function Texture() {
-    var t = {};
-    t.img = null;
-    t.load = function(url) {
-        t.img = new Image();
-        t.img.onload = function() {
-            t.ready = true;
-            $(t.img).attr("image-rendering","-webkit-optimize-contrast");                    
-            print("img onload:", url);
-        }
-        t.img.src = url;
-
-    };
-    return t;
+    this.img = null;
 }
+Texture.prototype.load = function(url) {
+    this.img = new Image();
+    this.img.onload = function() {
+        this.ready = true;
+        $(this.img).attr("image-rendering","-webkit-optimize-contrast");                    
+        print("img onload:", url);
+    }
+    this.img.src = url;
+}
+
 function TileDeck() {
-    var td = {};
-    td.tex = null;
-    td.numgrid_x = td.numgrid_y = null;
-    td.spritesize_x = td.spritesize_y = null;
-    td.imagesize_x = td.imagesize_y = null;
-    
-    td.setTexture = function(t) {
-        td.tex = t;
-    }
-    td.setSize = function( numgrid_x, numgrid_y, spritesize_x, spritesize_y, imagesize_x, imagesize_y ) {
-        td.numgrid_x = numgrid_x;
-        td.numgrid_y = numgrid_y;
-        td.spritesize_x = spritesize_x;
-        td.spritesize_y = spritesize_y;
-        td.imagesize_x = imagesize_x;
-        td.imagesize_y = imagesize_y;
-    }
-    td.getCoords = function( ind ) {
-        var col = ind % td.numgrid_x;
-        var row = Math.floor( ind / td.numgrid_y );
-        return {
-            x0 : col * td.spritesize_x,
-            y0 : row * td.spritesize_y,
-            w : td.spritesize_x,
-            h : td.spritesize_y
-        };
-        
-    }
-    return td;
+    this.tex = null;
+    this.numgrid_x = this.numgrid_y = null;
+    this.spritesize_x = this.spritesize_y = null;
+    this.imagesize_x = this.imagesize_y = null;
+}
+TileDeck.prototype.setTexture = function(t) {
+    this.tex = t;
+}
+TileDeck.prototype.setSize = function( numgrid_x, numgrid_y, spritesize_x, spritesize_y, imagesize_x, imagesize_y ) {
+    this.numgrid_x = numgrid_x;
+    this.numgrid_y = numgrid_y;
+    this.spritesize_x = spritesize_x;
+    this.spritesize_y = spritesize_y;
+    this.imagesize_x = imagesize_x;
+    this.imagesize_y = imagesize_y;
+}
+TileDeck.prototype.getCoords = function( ind ) {
+    var col = ind % this.numgrid_x;
+    var row = Math.floor( ind / this.numgrid_y );
+    return {
+        x0 : col * this.spritesize_x,
+        y0 : row * this.spritesize_y,
+        w : this.spritesize_x,
+        h : this.spritesize_y
+    };
 }
 
 
 function Grid() {
-    var g = {};
-    g.deck = null;
-    g.width = g.height = null;
-    g.setDeck = function(dk) { g.deck = dk; }
-    g.setSize = function(w,h) {
-        g.width = w;
-        g.height = h;
-        g.tbl = new Array(h);
-        for(var i=0;i<h;i++) {
-            g.tbl[i] = new Array(w);
-        }
+    this.deck = null;
+    this.width = this.height = null;
+    this.changed = false;
+    this.buf = null;
+    this.bufctx = null;    
+}
+Grid.prototype.setDeck = function(dk) { this.deck = dk; }
+Grid.prototype.setSize = function(w,h) {
+    this.width = w;
+    this.height = h;
+    this.tbl = new Array(h);
+    for(var i=0;i<h;i++) {
+        this.tbl[i] = new Array(w);
     }
-    g.changed = false;
-    g.set = function(x,y,ind) {
-        if( x >= 0 && x < g.width && y >= 0 && y < g.height ) {
-            g.tbl[Math.floor(y)][Math.floor(x)] = ind;
-        }
-        g.changed = true;
+}
+Grid.prototype.set = function(x,y,ind) {
+    if( x >= 0 && x < this.width && y >= 0 && y < this.height ) {
+        this.tbl[Math.floor(y)][Math.floor(x)] = ind;
     }
-    g.buf = null;
-    g.bufctx = null;
-    g.ensure = function( pixw, pixh ) {
-        if( g.buf == null ) {
-            g.buf = document.createElement("canvas");            
-            g.buf.width = pixw * g.width;
-            g.buf.height = pixh * g.height;
-            g.bufctx = g.buf.getContext("2d");
-        }
-        if( g.changed ) {
-            for(var y=0;y<g.height;y++) {
-                for(var x=0;x<g.width;x++) {
-                    var ind = g.tbl[y][x];
-                    var coords = g.deck.getCoords(ind);
-                    g.bufctx.drawImage( g.deck.tex.img,
-                                        coords.x0, coords.y0,
-                                        coords.w, coords.h,
-                                        x * pixw, y * pixh,
-                                        pixw, pixh );
-                }
+    this.changed = true;
+}
+Grid.prototype.ensure = function( pixw, pixh ) {
+    if( this.buf == null ) {
+        this.buf = document.createElement("canvas");            
+        this.buf.width = pixw * this.width;
+        this.buf.height = pixh * this.height;
+        this.bufctx = this.buf.getContext("2d");
+    }
+    if( this.changed ) {
+        for(var y=0;y<this.height;y++) {
+            for(var x=0;x<this.width;x++) {
+                var ind = this.tbl[y][x];
+                var coords = this.deck.getCoords(ind);
+                this.bufctx.drawImage( this.deck.tex.img,
+                                       coords.x0, coords.y0,
+                                       coords.w, coords.h,
+                                       x * pixw, y * pixh,
+                                       pixw, pixh );
             }
         }
-        g.changed = false;
     }
-    // render 
-    g.draw = function(ctx) {
-        ctx.drawImage( g.buf, 0,0 );
-    }
-
-    return g;
+    this.changed = false;
+}
+Grid.prototype.draw = function(ctx) {
+    ctx.drawImage( this.buf, 0,0 );
 }
 
 function Animation() {
-    var ac = {};
-    ac.keys = [0];
-    ac.loop = false;
-    ac.step_time = 0.016667;
-    ac.total_time = 0;
-    ac.setKeys = function( step_time, inds ) {
-        assert( inds instanceof Array );
-        ac.keys = inds;
-        ac.step_time = step_time;
-        ac.total_time = step_time * inds.length;
-    }
-    ac.getIndex = function( t ) {
-        if(t<0) t=0;
-        var ind = Math.floor(t / ac.step_time);
-        assert(ind>=0);
-        if(ac.loop){
-            return ac.keys[ ind % ac.keys.length ];
+    this.keys = [0];
+    this.loop = false;
+    this.step_time = 0.016667;
+    this.total_time = 0;
+}
+Animation.prototype.setKeys = function( step_time, inds ) {
+    assert( inds instanceof Array );
+    this.keys = inds;
+    this.step_time = step_time;
+    this.total_time = step_time * inds.length;
+}
+Animation.prototype.getIndex = function( t ) {
+    if(t<0) t=0;
+    var ind = Math.floor(t / this.step_time);
+    assert(ind>=0);
+    if(this.loop){
+        return this.keys[ ind % this.keys.length ];
+    } else {
+        if( ind >= this.keys.length ) {
+            return this.keys[ this.keys.length - 1 ];
         } else {
-            if( ind >= ac.keys.length ) {
-                return ac.keys[ ac.keys.length - 1 ];
-            } else {
-                return ac.keys[ ind ];
-            }
+            return this.keys[ ind ];
         }
     }
-
-    return ac;
 }
 
+var prop_idgen = 0;
 function Prop() {
-    var p = {};
-    p.parent_layer = null;
-    p.accum_time = 0;
-    p.tex = null;
-    p.loc = Vec2(0,0);
-    p.scl = Vec2(16,16);
-    p.index = null;
-    p.anim = null;
-    p.rot = 0;
-    p.grids = new Array();
-    p.onUpdate = function(p) { return true; }
-    
-    p.setTexture = function(t) {
-        p.tex = t;
-    };
-    p.setIndex = function(ind) {
-        p.index = ind;
-    }
-    p.setDeck = function(dk) {
-        p.deck = dk;
-        p.index = 0;
-    }
-    p.setAnim = function(anm) {
-        p.anim = anm;
-    }
-    p.setLoc = function(a,b) {
-        if( b != null ) {
-            p.loc.x = a;
-            p.loc.y = b;
-        } else {
-            p.loc = a;
-        }
-    };
-    p.setScl = function(a,b) {
-        if( b != null ) {
-            p.scl.x = a;
-            p.scl.y = b;
-        } else {
-            p.scl = a;
-        }
-    };
-    p.poll = function(dt) {
-        p.accum_time += dt;
-        var keep = p.onUpdate.apply(p, [dt]);
-        if(keep == false ) {
-            p.parent_layer.removeProp(p);
-            return;
-        }
-        if( p.anim ) {
-            var ind = p.anim.getIndex(p.accum_time);
-            p.setIndex( ind );
-        }
-    }
-    p.addGrid = function(g) {
-        p.grids.push(g);
-    }
-    // 右下が+X,+Y
-    p.render = function() {
-        assert( p.parent_layer != null );
-        
-        var center_x = p.parent_moai.canvas.width/2;
-        var center_y = p.parent_moai.canvas.height/2;
-
-        var x = p.loc.x - p.parent_layer.camera.loc.x + center_x;
-        var y = p.loc.y - p.parent_layer.camera.loc.y + center_y;
-
-        var ctx = p.parent_moai.ctx;
-
-        var x = Math.floor(x); 
-        var y = Math.floor(y);
-        ctx.translate(x,y);
-        if( p.rot != 0 ) ctx.rotate(p.rot);
-
-        if( p.deck ) {
-            assert( p.deck.tex );
-            var coords = p.deck.getCoords( p.index );        
-            ctx.drawImage( p.deck.tex.img,
-                           coords.x0, coords.y0,
-                           coords.w, coords.h,
-                           - p.scl.x/2, - p.scl.y/2,
-                           p.scl.x,p.scl.y
-                         );
-        } else if( p.tex ){
-            ctx.drawImage( p.tex.img,
-                           0,0,
-                           16,16,
-                           - p.scl.x/2, - p.scl.y/2,
-                           p.scl.x,p.scl.y
-                         );
-        }
-
-        for(var i=0;i<p.grids.length;i++) {
-            var grid = p.grids[i];
-            grid.ensure( p.scl.x, p.scl.y );
-            grid.draw(ctx)
-        }
-
-        if( p.rot != 0 ) ctx.rotate(-p.rot);
-        ctx.translate(-x,-y);            
-
-
-//        print("render:", p.loc.x, p.loc.y, p.scl.x, p.scl.y, center_x, center_y );
-    };
-    
-    return p;
+    prop_idgen ++;
+    this.id = prop_idgen;
+    this.parent_layer = null;
+    this.accum_time = 0;
+    this.tex = null;
+    this.loc = new Vec2(0,0);
+    this.scl = new Vec2(16,16);
+    this.index = null;
+    this.anim = null;
+    this.rot = 0;
+    this.grids = new Array();
+    this.onUpdate = null;
 }
+
+Prop.prototype.setTexture = function(t) {
+    this.tex = t;
+}
+Prop.prototype.setIndex = function(ind) {
+    this.index = ind;
+}
+Prop.prototype.setDeck = function(dk) {
+    this.deck = dk;
+    this.index = 0;
+}
+Prop.prototype.setAnim = function(anm) {
+    this.anim = anm;
+}
+Prop.prototype.setLoc = function(a,b) {
+    if( b != null ) {
+        this.loc.x = a;
+        this.loc.y = b;
+    } else {
+        this.loc = a;
+    }
+}
+Prop.prototype.setScl = function(a,b) {
+    if( b != null ) {
+        this.scl.x = a;
+        this.scl.y = b;
+    } else {
+        this.scl = a;
+    }
+};
+Prop.prototype.poll = function(dt) {
+    this.accum_time += dt;
+    var keep = true;
+    if( this.onUpdate) keep = this.onUpdate.apply(this, [dt]);
+    if(keep == false ) {
+        this.parent_layer.removeProp(p);
+        return;
+    }
+    if( this.anim ) {
+        var ind = this.anim.getIndex(this.accum_time);
+        this.setIndex( ind );
+    }
+}
+Prop.prototype.addGrid = function(g) {
+    this.grids.push(g);
+}
+// 右下が+X,+Y
+Prop.prototype.render = function() {
+    assert( this.parent_layer != null );
+    
+    var center_x = this.parent_moai.canvas.width/2;
+    var center_y = this.parent_moai.canvas.height/2;
+
+    var x = this.loc.x - this.parent_layer.camera.loc.x + center_x;
+    var y = this.loc.y - this.parent_layer.camera.loc.y + center_y;
+
+    var ctx = this.parent_moai.ctx;
+
+    var x = Math.floor(x); 
+    var y = Math.floor(y);
+    ctx.translate(x,y);
+    if( this.rot != 0 ) ctx.rotate(this.rot);
+
+    if( this.deck ) {
+        assert( this.deck.tex );
+        var coords = this.deck.getCoords( this.index );        
+        ctx.drawImage( this.deck.tex.img,
+                       coords.x0, coords.y0,
+                       coords.w, coords.h,
+                       - this.scl.x/2, - this.scl.y/2,
+                       this.scl.x, this.scl.y
+                     );
+    } else if( this.tex ){
+        ctx.drawImage( this.tex.img,
+                       0,0,
+                       16,16,
+                       - this.scl.x/2, - this.scl.y/2,
+                       this.scl.x, this.scl.y
+                     );
+    }
+
+    for(var i=0;i<this.grids.length;i++) {
+        var grid = this.grids[i];
+        grid.ensure( this.scl.x, this.scl.y );
+        grid.draw(ctx)
+    }
+
+    if( this.rot != 0 ) ctx.rotate(-this.rot);
+    ctx.translate(-x,-y);            
+    //        print("render:", this.loc.x, this.loc.y, this.scl.x, this.scl.y, center_x, center_y );
+}
+
+function Camera () {
+    Prop.call(this);
+}
+Camera.prototype.__proto__ = Prop.prototype;
+
 
 function Layer() {
     var l = {};
@@ -305,107 +295,94 @@ function Layer() {
 
 
 function SoundSystem() {
-    var ss = {};
-
     try {
-        ss.ctx = new webkitAudioContext();
+        this.ctx = new webkitAudioContext();
     } catch(e) {
         alert( "web audio api is not supported" );
     }
-    //    print(ss.ctx);
+}
 
-    ss.newSound = function(url) {
-        var snd = {};
-        var req = new XMLHttpRequest();
-        snd.req = req;
-        
-        req.open( "GET", url, true );
-        req.responseType = "arraybuffer";
-
-        req.onload = function() {
-            ss.ctx.decodeAudioData( req.response, function(buffer) {
-                snd.buffer = buffer;
-                print("newSound onload", url );
-
-                snd.play = function(vol) {
-                    if( vol == null ) vol = 1;
-
-                    var source = snd.parent.ctx.createBufferSource() ;
-                    source.buffer = snd.buffer;
-                    
-                    var gain_node = snd.parent.ctx.createGainNode();
-                    source.connect(gain_node);
-                    gain_node.connect( snd.parent.ctx.destination);
-                    gain_node.gain.value = vol;
-
-                    source.noteOn(0);
-
-                    snd.source = source;
-                    snd.gain_node = gain_node;
-                    
-                };
-                
-                
-            }, function(e){ print(e); } );
-        }
-        req.send();
-        snd.parent = ss;
-
-        return snd;
-    };
+SoundSystem.prototype.newSound = function(url) {
+    var snd = {};
+    var req = new XMLHttpRequest();
+    snd.req = req;
     
+    req.open( "GET", url, true );
+    req.responseType = "arraybuffer";
 
-    return ss;
+    var sndsys = this;
+    req.onload = function() {
+        sndsys.ctx.decodeAudioData( req.response, function(buffer) {
+            snd.buffer = buffer;
+            print("newSound onload", url );
+
+            snd.play = function(vol) {
+                if( vol == null ) vol = 1;
+
+                var source = snd.parent.ctx.createBufferSource() ;
+                source.buffer = snd.buffer;
+                
+                var gain_node = snd.parent.ctx.createGainNode();
+                source.connect(gain_node);
+                gain_node.connect( snd.parent.ctx.destination);
+                gain_node.gain.value = vol;
+
+                source.noteOn(0);
+
+                snd.source = source;
+                snd.gain_node = gain_node;
+                
+            };
+            
+            
+        }, function(e){ print(e); } );
+    }
+    req.send();
+    snd.parent = this;
+
+    return snd;
 }
 
 //////////////
 
 function MoaiJS() {
-    var moai = {};
-
-    moai.setCanvas = function( canvas ) {
-        moai.canvas = canvas;
-        moai.ctx = canvas.getContext("2d");
-        moai.ctx.imageSmoothingEnabled = false;        
-        moai.ctx.webkitImageSmoothingEnabled = false;
-        moai.ctx.mozImageSmoothingEnabled = false;        
-        
-    }
-    moai.setClearColor = function( c ) {
-        moai.clear_color = c;
-    };
-    
-    moai.layers = [];
-    
-    moai.insertLayer = function( l ) {
-        l.parent_moai = moai;
-        moai.layers.push(l);
-    }
-
-    moai.accum_time = 0;
-    moai.poll = function( dt ) {
-        moai.accum_time += dt;
-        var tot=0;
-        for(var i=0;i<moai.layers.length;i++) {
-            var layer = moai.layers[i];
-            tot+=layer.poll(dt);
-        }
-        return tot;
-    };
-    
-    moai.render = function() {
-        moai.ctx.fillStyle = moai.clear_color.toStyle();
-        moai.ctx.fillRect(0,0,moai.canvas.width,moai.canvas.height);
-        var tot=0;
-        for(var i=0;i<moai.layers.length;i++) {
-            var layer = moai.layers[i];
-            tot+=layer.render();
-        }
-        return tot;
-    };
-    
-    return moai;
 }
+MoaiJS.prototype.setCanvas = function( canvas ) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.ctx.imageSmoothingEnabled = false;        
+    this.ctx.webkitImageSmoothingEnabled = false;
+    this.ctx.mozImageSmoothingEnabled = false;
+    this.layers = [];
+    this.clear_color = new Color(0,0,0,1);
+    this.accum_time = 0;    
+}
+MoaiJS.prototype.setClearColor = function( c ) {
+    this.clear_color = c;
+};
+MoaiJS.prototype.insertLayer = function( l ) {
+    l.parent_moai = this;
+    this.layers.push(l);
+}
+MoaiJS.prototype.poll = function( dt ) {
+    this.accum_time += dt;
+    var tot=0;
+    for(var i=0;i<this.layers.length;i++) {
+        var layer = this.layers[i];
+        tot+=layer.poll(dt);
+    }
+    return tot;
+};
+MoaiJS.prototype.render = function() {
+    this.ctx.fillStyle = this.clear_color.toStyle();
+    this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
+    var tot=0;
+    for(var i=0;i<this.layers.length;i++) {
+        var layer = this.layers[i];
+        tot+=layer.render();
+    }
+    return tot;
+};
 
 
 

@@ -4,43 +4,42 @@ console.log(canvas);
 
 
 
-var moai = MoaiJS();
+var moai = new MoaiJS();
 
 moai.setCanvas(canvas);
-moai.setClearColor( Color(0.1,0.1,0.1,1) );
+moai.setClearColor( new Color(0.1,0.1,0.1,1) );
 
 var main_layer = Layer();
 moai.insertLayer( main_layer );
 
-var cam = Camera();
-cam.setLoc( Vec2(0,0) );
+var cam = new Camera();
+cam.setLoc( new Vec2(0,0) );
 main_layer.setCamera(cam);
 
-var t0 = Texture();
+var t0 = new Texture();
 t0.load( "sol.png" );
 
-var t1 = Texture();
+var t1 = new Texture();
 t1.load( "base.png" );
 
-var dk = TileDeck();
+var dk = new TileDeck();
 dk.setTexture(t1);
 dk.setSize( 16,16, 16,16,  256,256 );
 
-var bulletanim = Animation();
+var bulletanim = new Animation();
 bulletanim.setKeys( 0.1, [16,17,18,19] );
 bulletanim.loop = true;
 
 
-var ss = SoundSystem();
+var ss = new SoundSystem();
 var s0 = ss.newSound( "http://localhost:8888/sounds/explode.wav" ); // command line "node sv.js" to serve static files for debugging
 
 // with deck
 function addProps(x,y,n) {
-    print("hoge:",n)
     for(var i=0;i<n;i++) {
-        var p = Prop();
+        var p = new Prop();
         p.id = i;
-        p.v = Vec2( range(-200,200), range(-200,200) );
+        p.v = new Vec2( range(-200,200), range(-200,200) );
         p.setLoc( x,y );
         p.onUpdate = function(dt) {
             this.loc.x += this.v.x * dt;
