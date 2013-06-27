@@ -93,18 +93,22 @@ function game_loop_callback() {
     var t = now();
     var dt = t - last_loop_at;
 
+    moai.poll(dt);    
+    var cnt = moai.render();
+    
     if( last_print_at < t-1 ) {
         last_print_at = t;
         $("#fps").html( "FPS:" + framecnt );
         print("fps:", framecnt );
         framecnt = 0;
+        $("#count").html("Count:" + cnt );
     }
     framecnt ++;
-    
-    moai.poll(dt);
-    var cnt = moai.render();
 
-    $("#count").html("Count:" + cnt );
+    if( range(0,100) < 5 ) {
+        var p = choose(main_layer.props);
+        main_layer.removeProp(p);
+    }
 
     last_loop_at = t;
 }

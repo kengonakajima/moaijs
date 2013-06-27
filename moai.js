@@ -239,10 +239,12 @@ function Layer() {
         assert( l.parent_moai != null );
         p.parent_layer = l;
         p.parent_moai = l.parent_moai;
-
         l.props.push(p);
-        
     };
+    l.removeProp = function(p) {
+        var ind = l.props.indexOf(p);
+        l.props.splice(ind,1);
+    }
     l.setCamera = function(cam) {
         l.camera = cam;
     }

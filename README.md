@@ -69,7 +69,12 @@ p.onUpdate = function(dt) {
   return true;   // when false, this prop will be discarded
 }
 main_layer.insertProp(p);
-</pre>  
+</pre>
+
+To remove sprite(Prop):
+<pre>
+main_layer.removeProp(prop);
+</pre>
 
 Buffered grid for tiled terrain:
 <Pre>
