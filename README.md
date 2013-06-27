@@ -63,6 +63,7 @@ p.setDeck( deck );
 p.setScl(32,32);
 p.setLoc( 10,20 );
 p.setIndex(0);
+p.setRot(3.1415);
 p.onUpdate = function(dt) {
   this.loc.x += 10 * dt;
   return true;   // when false, this prop will be discarded
@@ -70,6 +71,16 @@ p.onUpdate = function(dt) {
 main_layer.insertProp(p);
 </pre>  
 
+Buffered grid for tiled terrain:
+<Pre>
+var g = new Grid();
+g.setDeck(dk);
+g.setSize(8,8);
+g.set(0,1,123);
+prop.addGrid(g);
+</pre>
+
+            
 Then start your game loop:
 <pre>
 function game_loop_callback() {
