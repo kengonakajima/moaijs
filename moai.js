@@ -225,10 +225,10 @@ Prop.prototype.render = function() {
     } else {
         for(var i=0;i<this.grids.length;i++) {
             var grid = this.grids[i];
-            var gminx = x - grid.width*this.scl.x/2;
-            var gminy = y - grid.height*this.scl.y/2;
-            var gmaxx = x + grid.width*this.scl.x/2;
-            var gmaxy = y + grid.height*this.scl.y/2;
+            var gminx = x; 
+            var gminy = y;
+            var gmaxx = x + grid.width*this.scl.x;
+            var gmaxy = y + grid.height*this.scl.y;
             if( gminx<min_x) min_x = gminx;
             if( gminy<min_y) min_y = gminy;
             if( gmaxx>max_x) max_x = gmaxx;
