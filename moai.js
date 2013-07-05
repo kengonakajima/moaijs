@@ -92,7 +92,7 @@ Grid.prototype.set = function(x,y,ind) {
     }
     this.changed = true;
 }
-Grid.prototype.ensure = function( pixw, pixh ) {
+Grid.prototype.__ensure = function( pixw, pixh ) {
     if( this.buf == null ) {
         this.buf = document.createElement("canvas");            
         this.buf.width = pixw * this.width;
@@ -216,6 +216,34 @@ Prop.prototype.render = function() {
     var x = this.loc.x - this.parent_layer.camera.loc.x + center_x;
     var y = this.loc.y - this.parent_layer.camera.loc.y + center_y;
 
+    var min_x=x,min_y=y,max_x=x,max_y=y;
+    if( this.grids.length == 0 ) {
+        min_x = x - this.scl.x/2;
+        min_y = y - this.scl.y/2;
+        max_x = x + this.scl.x/2;
+        max_y = y + this.scl.y/2;        
+    } else {
+        for(var i=0;i<this.grids.length;i++) {
+            var grid = this.grids[i];
+            var gminx = x - grid.width*this.scl.x/2;
+            var gminy = y - grid.height*this.scl.y/2;
+            var gmaxx = x + grid.width*this.scl.x/2;
+            var gmaxy = y + grid.height*this.scl.y/2;
+            if( gminx<min_x) min_x = gminx;
+            if( gminy<min_y) min_y = gminy;
+            if( gmaxx>max_x) max_x = gmaxx;
+            if( gmaxy>max_y) max_y = gmaxy;
+        }
+    }
+    // culling
+    var to_cull = false;
+    if( max_x < 0 ) { to_cull = true;  }
+    if( max_y < 0 ) { to_cull = true;  }
+    if( min_x > this.parent_moai.canvas.width ) { to_cull = true;  }
+    if( min_y > this.parent_moai.canvas.height ) { to_cull = true;  }
+    if( to_cull ) return false;
+    
+//    print("draw:",this.id, x,y );
     var ctx = this.parent_moai.ctx;
 
     var x = Math.floor(x); 
@@ -243,13 +271,15 @@ Prop.prototype.render = function() {
 
     for(var i=0;i<this.grids.length;i++) {
         var grid = this.grids[i];
-        grid.ensure( this.scl.x, this.scl.y );
+        grid.__ensure( this.scl.x, this.scl.y );
         grid.draw(ctx)
     }
 
     if( this.rot != 0 ) ctx.rotate(-this.rot);
     ctx.translate(-x,-y);            
     //        print("render:", this.loc.x, this.loc.y, this.scl.x, this.scl.y, center_x, center_y );
+
+    return true;
 }
 
 function Camera () {
@@ -284,11 +314,12 @@ function Layer() {
         return l.props.length;
     };
     l.render = function() {
+        var render_cnt = 0;
         for(var i=0;i<l.props.length;i++) {
             var prop = l.props[i];
-            prop.render();
+            if(prop.render() ) render_cnt ++;
         }
-        return l.props.length;        
+        return render_cnt;
     };
     return l;
 }
