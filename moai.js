@@ -377,16 +377,17 @@ SoundSystem.prototype.newSound = function(url) {
 //////////////
 
 function MoaiJS() {
+    this.layers = [];
+    this.accum_time = 0;        
 }
+// configure as a client context
 MoaiJS.prototype.setCanvas = function( canvas ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;        
     this.ctx.webkitImageSmoothingEnabled = false;
     this.ctx.mozImageSmoothingEnabled = false;
-    this.layers = [];
     this.clear_color = new Color(0,0,0,1);
-    this.accum_time = 0;    
 }
 MoaiJS.prototype.setClearColor = function( c ) {
     this.clear_color = c;
@@ -418,3 +419,11 @@ MoaiJS.prototype.render = function() {
 
 
 
+if( typeof(GLOBAL) != "undefined" ) {
+    GLOBAL.MoaiJS = MoaiJS;
+    GLOBAL.Prop = Prop;
+    GLOBAL.Layer = Layer;
+    GLOBAL.Vec2 = Vec2;
+    GLOBAL.Camera = Camera;
+    GLOBAL.Color = Color;
+}
